@@ -45,6 +45,16 @@ export interface DailyCheckin {
   updated_at: string;
 }
 
+export interface Note {
+  id: string;
+  from_user_id: string;
+  to_user_id: string;
+  body: string;
+  created_at: string;
+}
+
+export const NOTE_MAX_LENGTH = 200;
+
 export const USER_IDS = {
   Ali: process.env.NEXT_PUBLIC_USER_ALI_ID ?? "a1111111-1111-1111-1111-111111111111",
   Hajar: process.env.NEXT_PUBLIC_USER_HAJAR_ID ?? "b2222222-2222-2222-2222-222222222222",

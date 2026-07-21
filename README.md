@@ -26,13 +26,15 @@ cp .env.example .env.local
 2. Open **SQL Editor** and run, in order:
    - `supabase/migrations/001_schema.sql`
    - `supabase/migrations/002_start_new_cycle.sql`
+   - `supabase/migrations/003_notes.sql`
    - `supabase/seed.sql`
 3. Confirm **Realtime** is enabled for `daily_checkins` (the migration adds it to the publication).
 4. Copy Project URL + anon key into `.env.local`:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
+# (legacy name also works: NEXT_PUBLIC_SUPABASE_ANON_KEY)
 NEXT_PUBLIC_USER_ALI_ID=a1111111-1111-1111-1111-111111111111
 NEXT_PUBLIC_USER_HAJAR_ID=b2222222-2222-2222-2222-222222222222
 ```
@@ -81,7 +83,7 @@ Service worker / offline shell is enabled in production builds.
 | Screen   | Purpose |
 |----------|---------|
 | Who are you? | First visit — pick Ali or Hajar |
-| Today    | Your challenges — Complete / Fail + success animation |
+| Today    | Your challenges — Complete / Fail + success animation; leave a short note for the other person |
 | Board    | Competitive table, streaks, completion %, day strip |
 | History  | Browse any day in the cycle; past days editable while active |
 | Settings | Edit challenges, start new cycle, switch user (confirmed) |

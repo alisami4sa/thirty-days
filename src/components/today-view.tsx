@@ -10,6 +10,7 @@ import type { CycleData } from "@/hooks/use-cycle-data";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { SuccessBurst, useSuccessBurst } from "@/components/success-burst";
+import { NotePanel } from "@/components/note-panel";
 import { cn } from "@/lib/utils";
 
 export function TodayView({
@@ -166,6 +167,8 @@ export function TodayView({
       {mine.length === 0 && (
         <EmptyState title="Nothing for you today" body="No enabled challenges apply to your profile." />
       )}
+
+      <NotePanel displayName={displayName} userId={userId} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import type {
   CheckinStatus,
   DailyCheckin,
   DisplayName,
+  Note,
 } from "./types";
 import { USER_IDS } from "./types";
 
@@ -14,6 +15,7 @@ interface LocalDb {
   cycles: ChallengeCycle[];
   challenges: Challenge[];
   checkins: DailyCheckin[];
+  notes: Note[];
 }
 
 function uid(): string {
@@ -80,7 +82,7 @@ function defaultDb(): LocalDb {
     },
   ];
 
-  return { cycles: [cycle], challenges, checkins: [] };
+  return { cycles: [cycle], challenges, checkins: [], notes: [] };
 }
 
 function read(): LocalDb {
@@ -92,7 +94,9 @@ function read(): LocalDb {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
       return db;
     }
-    return JSON.parse(raw) as LocalDb;
+    const parsed = JSON.parse(raw) as LocalDb;
+    if (!parsed.notes) parsed.notes = [];
+    return parsed;
   } catch {
     const db = defaultDb();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
@@ -200,6 +204,33 @@ export const localDb = {
     });
     write(db);
     return cycle;
+  },
+
+  getNotes(): Note[] {
+    return read()
+      .notes.slice()
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  },
+
+  addNote(input: { from_user_id: string; to_user_id: string; body: string }): Note {
+    const db = read();
+    const row: Note = {
+      id: uid(),
+      from_user_id: input.from_user_id,
+      to_user_id: input.to_user_id,
+      body: input.body.trim(),
+      created_at: new Date().toISOString(),
+    };
+    db.notes.unshift(row);
+    db.notes = db.notes.slice(0, 40);
+    write(db);
+    return row;
+  },
+
+  deleteNote(id: string, fromUserId: string) {
+    const db = read();
+    db.notes = db.notes.filter((n) => !(n.id === id && n.from_user_id === fromUserId));
+    write(db);
   },
 
   reset() {
