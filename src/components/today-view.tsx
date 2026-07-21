@@ -93,6 +93,8 @@ export function TodayView({
         </p>
       )}
 
+      <NotePanel displayName={displayName} userId={userId} />
+
       <ul className="space-y-3">
         {mine.map((challenge) => {
           const status = statusOf(checkins, challenge.id, userId, today);
@@ -167,8 +169,6 @@ export function TodayView({
       {mine.length === 0 && (
         <EmptyState title="Nothing for you today" body="No enabled challenges apply to your profile." />
       )}
-
-      <NotePanel displayName={displayName} userId={userId} />
     </div>
   );
 }
