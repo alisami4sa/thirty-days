@@ -39,7 +39,6 @@ function fireBrowserNotify(from: DisplayName, body: string) {
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
       tag: "thirty-days-note",
-      renotify: true,
     });
     n.onclick = () => {
       window.focus();
