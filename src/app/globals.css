@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f3ebe0;
+  --surface: #faf6ef;
+  --surface-raised: #ebe2d4;
+  --ink: #1c2b24;
+  --ink-soft: #31453b;
+  --muted: #6b756f;
+  --line: #d5cbb8;
+  --line-strong: #b9ad97;
+  --accent: #c45c26;
+  --accent-soft: #f0ddd0;
+  --ok: #1f6f5a;
+  --ok-deep: #145243;
+  --ok-soft: #d7ebe3;
+  --fail: #a33b2d;
+  --fail-deep: #7f2c22;
+  --fail-soft: #f3ddd8;
+  --ring: #c45c26;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.atmosphere {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(120% 80% at 10% -10%, rgba(196, 92, 38, 0.16), transparent 55%),
+    radial-gradient(90% 70% at 100% 0%, rgba(31, 111, 90, 0.12), transparent 50%),
+    linear-gradient(180deg, #f7f0e6 0%, #efe5d6 48%, #e8dcc8 100%);
+}
+
+.atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, white);
+}
