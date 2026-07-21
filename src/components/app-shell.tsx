@@ -9,6 +9,7 @@ import { TodayView } from "@/components/today-view";
 import { BoardView } from "@/components/board-view";
 import { HistoryView } from "@/components/history-view";
 import { SettingsView } from "@/components/settings-view";
+import { NoteAlertHost } from "@/components/note-alert-host";
 
 export function AppShell() {
   const hydrated = useIdentity((s) => s.hydrated);
@@ -67,6 +68,7 @@ export function AppShell() {
         )}
       </div>
       <BottomNav active={tab} onChange={setTab} />
+      <NoteAlertHost displayName={displayName} userId={userId} />
     </div>
   );
 }

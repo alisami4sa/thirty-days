@@ -21,6 +21,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  ensureNoteNotifyPermission,
+  getNoteNotifyEnabled,
+  setNoteNotifyEnabled,
+} from "@/hooks/use-note-alerts";
 
 type DraftChallenge = {
   title: string;
@@ -76,6 +81,12 @@ export function SettingsView({
   const { cycle, challenges, cycles, mode, updateChallenge, addChallenge, startNewCycle } = data;
   const clearIdentity = useIdentity((s) => s.clearIdentity);
   const [switchTo, setSwitchTo] = useState<DisplayName | null>(null);
+  const [notifyOn, setNotifyOn] = useState(false);
+  const [notifyMsg, setNotifyMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNotifyOn(getNoteNotifyEnabled() && typeof Notification !== "undefined" && Notification.permission === "granted");
+  }, []);
 
   const [drafts, setDrafts] = useState<DraftChallenge[]>(() => challenges.map(toDraft));
   const [cycleName, setCycleName] = useState(
@@ -251,6 +262,56 @@ export function SettingsView({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--ink)]">
+          Note alerts
+        </h2>
+        <p className="text-sm text-[var(--muted)]">
+          New notes always pop up in the app. Turn on device notifications for a banner when the app is open or on the home screen.
+        </p>
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/70 px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-[var(--ink)]">Push-style alerts</p>
+            <p className="text-xs text-[var(--muted)]">
+              {typeof Notification === "undefined"
+                ? "Not supported in this browser"
+                : Notification.permission === "denied"
+                  ? "Blocked — enable in browser/site settings"
+                  : notifyOn
+                    ? "On"
+                    : "Off"}
+            </p>
+          </div>
+          <Switch
+            checked={notifyOn}
+            onCheckedChange={(v) => {
+              void (async () => {
+                setNotifyMsg(null);
+                if (!v) {
+                  setNoteNotifyEnabled(false);
+                  setNotifyOn(false);
+                  return;
+                }
+                const result = await ensureNoteNotifyPermission();
+                if (result === "granted") {
+                  setNotifyOn(true);
+                  setNotifyMsg("Notifications enabled.");
+                } else if (result === "denied") {
+                  setNotifyOn(false);
+                  setNotifyMsg("Permission blocked. Enable notifications for this site in your browser or iOS settings.");
+                } else if (result === "unsupported") {
+                  setNotifyOn(false);
+                  setNotifyMsg("This browser does not support notifications.");
+                } else {
+                  setNotifyOn(false);
+                }
+              })();
+            }}
+          />
+        </div>
+        {notifyMsg && <p className="text-sm text-[var(--muted)]">{notifyMsg}</p>}
       </section>
 
       <section className="space-y-4">
