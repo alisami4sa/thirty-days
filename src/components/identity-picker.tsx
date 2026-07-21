@@ -11,10 +11,10 @@ export function IdentityPicker() {
   const pick = (name: DisplayName) => setIdentity(name);
 
   return (
-    <main className="relative flex min-h-dvh flex-col justify-end px-5 pb-10 pt-16 sm:justify-center sm:pb-16">
+    <main className="relative flex min-h-dvh flex-col justify-center px-5 pb-10 pt-[max(2.5rem,env(safe-area-inset-top))]">
       <div className="atmosphere" aria-hidden />
       <motion.div
-        className="relative mx-auto w-full max-w-md"
+        className="relative mx-auto w-full max-w-md -translate-y-6"
         initial={reduce ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
