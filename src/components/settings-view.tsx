@@ -33,6 +33,7 @@ import {
   checkinsToCsv,
   downloadTextFile,
 } from "@/lib/insights";
+import { ReloadAppButton, RefreshButton } from "@/components/refresh-button";
 
 type DraftChallenge = {
   title: string;
@@ -85,7 +86,7 @@ export function SettingsView({
   data: CycleData;
   displayName: DisplayName;
 }) {
-  const { cycle, challenges, checkins, cycles, mode, updateChallenge, addChallenge, startNewCycle, resetFreshStart } =
+  const { cycle, challenges, checkins, cycles, mode, updateChallenge, addChallenge, startNewCycle, resetFreshStart, refresh } =
     data;
   const clearIdentity = useIdentity((s) => s.clearIdentity);
   const userId = useIdentity((s) => s.userId) ?? USER_IDS[displayName];
@@ -198,18 +199,36 @@ export function SettingsView({
   return (
     <div className="space-y-8 pb-28">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-          Settings
-        </p>
-        <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)]">
-          Cycle & identity
-        </h1>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+              Settings
+            </p>
+            <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)]">
+              Cycle & identity
+            </h1>
+          </div>
+          <RefreshButton onRefresh={refresh} />
+        </div>
         <p className="mt-2 text-sm text-[var(--muted)]">
           Signed in as <span className="font-semibold text-[var(--ink)]">{displayName}</span>
           {" · "}
           Data: {mode === "supabase" ? "Supabase live" : "Local demo"}
         </p>
       </header>
+
+      <section className="space-y-3">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--ink)]">
+          Refresh
+        </h2>
+        <p className="text-sm text-[var(--muted)]">
+          PWAs have no browser refresh. Tap refresh for latest data, or reload the app to pick up updates.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <RefreshButton onRefresh={refresh} label="Refresh data" />
+          <ReloadAppButton />
+        </div>
+      </section>
 
       <section className="space-y-3">
         <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--ink)]">

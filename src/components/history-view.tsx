@@ -15,6 +15,7 @@ import type { CycleData } from "@/hooks/use-cycle-data";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { SuccessBurst, useSuccessBurst } from "@/components/success-burst";
+import { RefreshButton } from "@/components/refresh-button";
 import { cn } from "@/lib/utils";
 
 export function HistoryView({
@@ -26,7 +27,7 @@ export function HistoryView({
   displayName: DisplayName;
   userId: string;
 }) {
-  const { cycle, challenges, checkins, setCheckin } = data;
+  const { cycle, challenges, checkins, setCheckin, refresh } = data;
   const today = todayISO();
   const dates = useMemo(() => (cycle ? cycleDates(cycle) : []), [cycle]);
   const [selected, setSelected] = useState(today);
@@ -80,9 +81,12 @@ export function HistoryView({
     <div className="space-y-6 pb-28">
       <SuccessBurst burstKey={burstKey} />
       <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-          History · {cycle.name}
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+            History · {cycle.name}
+          </p>
+          <RefreshButton onRefresh={refresh} />
+        </div>
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)]">
           Browse days
         </h1>

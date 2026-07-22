@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { SuccessBurst, useSuccessBurst } from "@/components/success-burst";
 import { NotePanel } from "@/components/note-panel";
+import { RefreshButton } from "@/components/refresh-button";
 import { cn } from "@/lib/utils";
 
 export function TodayView({
@@ -27,7 +28,7 @@ export function TodayView({
   displayName: DisplayName;
   userId: string;
 }) {
-  const { cycle, challenges, checkins, setCheckin, uploadProof, mode, lastSyncedAt } = data;
+  const { cycle, challenges, checkins, setCheckin, uploadProof, mode, lastSyncedAt, refresh } = data;
   const today = todayISO();
   const { fire, burstKey } = useSuccessBurst();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -124,9 +125,12 @@ export function TodayView({
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
             {cycle.name} · Day {Math.min(Math.max(dayNum, 1), total)}/{total}
           </p>
-          <p className="text-[11px] font-medium text-[var(--muted)]" title="Realtime sync status">
-            {syncedLabel}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] font-medium text-[var(--muted)]" title="Realtime sync status">
+              {syncedLabel}
+            </p>
+            <RefreshButton onRefresh={refresh} />
+          </div>
         </div>
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)]">
           Today, {displayName}

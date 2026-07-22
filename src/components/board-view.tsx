@@ -7,6 +7,7 @@ import { cycleDates, cycleDayNumber, cycleTotalDays, todayISO } from "@/lib/date
 import { completionRate, currentStreak, dayProgress, statusOf } from "@/lib/stats";
 import type { CycleData } from "@/hooks/use-cycle-data";
 import { StatusDot } from "@/components/status-badge";
+import { RefreshButton } from "@/components/refresh-button";
 import { cn } from "@/lib/utils";
 
 export function BoardView({
@@ -16,7 +17,7 @@ export function BoardView({
   data: CycleData;
   displayName: DisplayName;
 }) {
-  const { cycle, challenges, checkins } = data;
+  const { cycle, challenges, checkins, refresh } = data;
   const today = todayISO();
 
   const dates = useMemo(() => (cycle ? cycleDates(cycle) : []), [cycle]);
@@ -60,9 +61,12 @@ export function BoardView({
   return (
     <div className="space-y-6 pb-28">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-          Competitive board · Day {dayNum}/{cycleTotalDays(cycle)}
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+            Competitive board · Day {dayNum}/{cycleTotalDays(cycle)}
+          </p>
+          <RefreshButton onRefresh={refresh} />
+        </div>
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)]">
           Ali vs Hajar
         </h1>
