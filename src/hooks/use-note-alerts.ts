@@ -52,31 +52,24 @@ function fireBrowserNotify(from: DisplayName, body: string) {
 export function useNoteAlerts(displayName: DisplayName, userId: string) {
   const { otherName, latestIncoming, loading } = useNotes(displayName, userId);
   const [popupNote, setPopupNote] = useState<Note | null>(null);
-  const primed = useRef(false);
+  const notifiedId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (loading) return;
-
-    if (!latestIncoming) {
-      primed.current = true;
-      return;
-    }
+    if (loading || !latestIncoming) return;
 
     const seen = localStorage.getItem(seenKey(userId));
-    if (seen === latestIncoming.id) {
-      primed.current = true;
-      return;
-    }
+    if (seen === latestIncoming.id) return;
+    if (notifiedId.current === latestIncoming.id) return;
 
-    // Show once on app entry (and for newly arrived notes) until dismissed.
+    notifiedId.current = latestIncoming.id;
     setPopupNote(latestIncoming);
     fireBrowserNotify(otherName, latestIncoming.body);
-    primed.current = true;
   }, [loading, latestIncoming, userId, otherName]);
 
   const dismiss = useCallback(() => {
     if (popupNote) {
       localStorage.setItem(seenKey(userId), popupNote.id);
+      notifiedId.current = popupNote.id;
     }
     setPopupNote(null);
   }, [popupNote, userId]);
