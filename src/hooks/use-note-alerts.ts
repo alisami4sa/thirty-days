@@ -57,22 +57,21 @@ export function useNoteAlerts(displayName: DisplayName, userId: string) {
   useEffect(() => {
     if (loading) return;
 
-    if (!primed.current) {
+    if (!latestIncoming) {
       primed.current = true;
-      if (latestIncoming) {
-        localStorage.setItem(seenKey(userId), latestIncoming.id);
-      }
       return;
     }
 
-    if (!latestIncoming) return;
-
     const seen = localStorage.getItem(seenKey(userId));
-    if (seen === latestIncoming.id) return;
+    if (seen === latestIncoming.id) {
+      primed.current = true;
+      return;
+    }
 
-    localStorage.setItem(seenKey(userId), latestIncoming.id);
+    // Show once on app entry (and for newly arrived notes) until dismissed.
     setPopupNote(latestIncoming);
     fireBrowserNotify(otherName, latestIncoming.body);
+    primed.current = true;
   }, [loading, latestIncoming, userId, otherName]);
 
   const dismiss = useCallback(() => {
