@@ -53,8 +53,9 @@ export function useNotes(displayName: DisplayName, userId: string) {
     const supabase = getSupabase();
     if (!supabase) return;
 
+    const channelName = `notes-${userId}-${Math.random().toString(36).slice(2, 9)}`;
     const channel = supabase
-      .channel("notes-live")
+      .channel(channelName)
       .on("postgres_changes", { event: "*", schema: "public", table: "notes" }, () => {
         void refresh();
       })
@@ -63,7 +64,7 @@ export function useNotes(displayName: DisplayName, userId: string) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [mode, refresh]);
+  }, [mode, refresh, userId]);
 
   const incoming = useMemo(
     () => notes.filter((n) => n.to_user_id === userId && n.from_user_id === otherId),
