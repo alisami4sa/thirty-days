@@ -85,7 +85,7 @@ export function SettingsView({
   data: CycleData;
   displayName: DisplayName;
 }) {
-  const { cycle, challenges, checkins, cycles, mode, updateChallenge, addChallenge, startNewCycle } =
+  const { cycle, challenges, checkins, cycles, mode, updateChallenge, addChallenge, startNewCycle, resetFreshStart } =
     data;
   const clearIdentity = useIdentity((s) => s.clearIdentity);
   const userId = useIdentity((s) => s.userId) ?? USER_IDS[displayName];
@@ -525,6 +525,53 @@ export function SettingsView({
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={() => void onStartCycle()}>
                 Start cycle
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </section>
+
+      <section className="space-y-3 rounded-2xl border border-[var(--fail)]/25 bg-[var(--fail-soft)]/40 p-4">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--fail-deep)]">
+          Reset
+        </h2>
+        <p className="text-sm text-[var(--fail-deep)]/90">
+          Wipe all check-ins and notes, and restart the active cycle from today (Day 1/30). Challenges stay. Use this once you&apos;re both ready to start for real.
+        </p>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="danger" disabled={saving || !cycle}>
+              Reset &amp; start fresh
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset everything?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This deletes all check-ins and notes for both of you, and sets the cycle to start today. Challenges are kept. This cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-[var(--fail)] text-white hover:bg-[var(--fail-deep)]"
+                onClick={() => {
+                  void (async () => {
+                    setSaving(true);
+                    setError(null);
+                    setMessage(null);
+                    try {
+                      await resetFreshStart();
+                      setMessage("Reset done. Cycle starts today — ready for both of you.");
+                    } catch (e) {
+                      setError(e instanceof Error ? e.message : "Reset failed");
+                    } finally {
+                      setSaving(false);
+                    }
+                  })();
+                }}
+              >
+                Yes, reset
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

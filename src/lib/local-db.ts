@@ -240,6 +240,21 @@ export const localDb = {
     write(db);
   },
 
+  /** Wipe check-ins + notes and restart the active cycle from today. */
+  resetFreshStart(startDate = format(new Date(), "yyyy-MM-dd")) {
+    const db = read();
+    const active = db.cycles.find((c) => c.status === "active");
+    if (active) {
+      active.start_date = startDate;
+      active.end_date = format(addDays(new Date(startDate + "T12:00:00"), 29), "yyyy-MM-dd");
+      db.checkins = db.checkins.filter((c) => c.cycle_id !== active.id);
+    } else {
+      db.checkins = [];
+    }
+    db.notes = [];
+    write(db);
+  },
+
   reset() {
     write(defaultDb());
   },

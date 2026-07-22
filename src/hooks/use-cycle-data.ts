@@ -9,6 +9,7 @@ import type {
   CheckinStatus,
   DailyCheckin,
 } from "@/lib/types";
+import { USER_IDS } from "@/lib/types";
 import { todayISO } from "@/lib/dates";
 
 export interface CycleData {
@@ -41,6 +42,7 @@ export interface CycleData {
     start_date?: string;
     challenges: Omit<Challenge, "id" | "cycle_id">[];
   }) => Promise<void>;
+  resetFreshStart: () => Promise<void>;
 }
 
 async function fetchSupabase(): Promise<{
@@ -401,6 +403,53 @@ export function useCycleData(): CycleData {
     [cycle, mode, refresh]
   );
 
+  const resetFreshStart = useCallback(async () => {
+    const start = todayISO();
+    const endDate = new Date(start + "T12:00:00");
+    endDate.setDate(endDate.getDate() + 29);
+    const end = endDate.toISOString().slice(0, 10);
+
+    if (mode === "local") {
+      localDb.resetFreshStart(start);
+      try {
+        localStorage.removeItem("thirty-days-note-seen:" + USER_IDS.Ali);
+        localStorage.removeItem("thirty-days-note-seen:" + USER_IDS.Hajar);
+      } catch {
+        /* ignore */
+      }
+      await refresh();
+      return;
+    }
+
+    const supabase = getSupabase();
+    if (!supabase) throw new Error("Supabase not configured");
+    if (!cycle) throw new Error("No active cycle");
+
+    const { error: checkinsError } = await supabase
+      .from("daily_checkins")
+      .delete()
+      .eq("cycle_id", cycle.id);
+    if (checkinsError) throw checkinsError;
+
+    const { error: notesError } = await supabase.from("notes").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    if (notesError) throw notesError;
+
+    const { error: cycleError } = await supabase
+      .from("challenge_cycles")
+      .update({ start_date: start, end_date: end, name: "Cycle 1" })
+      .eq("id", cycle.id);
+    if (cycleError) throw cycleError;
+
+    try {
+      localStorage.removeItem("thirty-days-note-seen:" + USER_IDS.Ali);
+      localStorage.removeItem("thirty-days-note-seen:" + USER_IDS.Hajar);
+    } catch {
+      /* ignore */
+    }
+
+    await refresh();
+  }, [cycle, mode, refresh]);
+
   return {
     cycle,
     challenges,
@@ -416,6 +465,7 @@ export function useCycleData(): CycleData {
     updateChallenge,
     addChallenge,
     startNewCycle,
+    resetFreshStart,
   };
 }
 
