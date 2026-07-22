@@ -10,6 +10,7 @@ import {
   todayISO,
 } from "@/lib/dates";
 import { dayProgress, statusOf } from "@/lib/stats";
+import { isDayEditable } from "@/lib/insights";
 import type { CycleData } from "@/hooks/use-cycle-data";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
@@ -54,7 +55,7 @@ export function HistoryView({
     );
   }
 
-  const editable = cycle.status === "active" && activeDate >= cycle.start_date && activeDate <= cycle.end_date;
+  const editable = isDayEditable(cycle, activeDate, today);
   const progress = dayProgress(checkins, challenges, displayName, activeDate);
 
   const onStatus = async (
@@ -86,7 +87,7 @@ export function HistoryView({
           Browse days
         </h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Past days stay editable until the cycle ends.
+          Past days lock after midnight. Only today stays editable.
         </p>
       </header>
 
@@ -136,8 +137,10 @@ export function HistoryView({
               Day {cycleDayNumber(cycle, activeDate)} · {progress.done}/{progress.total} for you
             </p>
           </div>
-          {!editable && (
-            <span className="text-xs font-semibold text-[var(--muted)]">Read-only</span>
+                          {!editable && (
+            <span className="text-xs font-semibold text-[var(--muted)]">
+              {activeDate < today ? "Locked" : "Read-only"}
+            </span>
           )}
         </div>
 

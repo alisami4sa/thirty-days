@@ -22,6 +22,7 @@ export interface ChallengeMetadata {
     ali?: number;
     hajar?: number;
   };
+  require_proof?: boolean;
 }
 
 export interface Challenge {
@@ -43,6 +44,7 @@ export interface DailyCheckin {
   date: string;
   status: CheckinStatus;
   updated_at: string;
+  proof_url?: string | null;
 }
 
 export interface Note {

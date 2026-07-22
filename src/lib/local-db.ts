@@ -134,6 +134,7 @@ export const localDb = {
     user_id: string;
     date: string;
     status: CheckinStatus;
+    proof_url?: string | null;
   }): DailyCheckin {
     const db = read();
     const existing = db.checkins.find(
@@ -144,13 +145,19 @@ export const localDb = {
     );
     if (existing) {
       existing.status = input.status;
+      if (input.proof_url !== undefined) existing.proof_url = input.proof_url;
       existing.updated_at = new Date().toISOString();
       write(db);
       return existing;
     }
     const row: DailyCheckin = {
       id: uid(),
-      ...input,
+      cycle_id: input.cycle_id,
+      challenge_id: input.challenge_id,
+      user_id: input.user_id,
+      date: input.date,
+      status: input.status,
+      proof_url: input.proof_url ?? null,
       updated_at: new Date().toISOString(),
     };
     db.checkins.push(row);

@@ -19,13 +19,21 @@ export interface CycleData {
   loading: boolean;
   error: string | null;
   mode: "supabase" | "local";
+  lastSyncedAt: string | null;
   refresh: () => Promise<void>;
   setCheckin: (input: {
     challenge_id: string;
     user_id: string;
     date: string;
     status: CheckinStatus;
+    proof_url?: string | null;
   }) => Promise<void>;
+  uploadProof: (input: {
+    challenge_id: string;
+    user_id: string;
+    date: string;
+    file: File;
+  }) => Promise<string>;
   updateChallenge: (challenge: Challenge) => Promise<void>;
   addChallenge: (challenge: Omit<Challenge, "id" | "cycle_id">) => Promise<void>;
   startNewCycle: (opts: {
@@ -86,6 +94,7 @@ export function useCycleData(): CycleData {
   const [cycles, setCycles] = useState<ChallengeCycle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -96,6 +105,7 @@ export function useCycleData(): CycleData {
         setCycles(localDb.getCycles());
         setChallenges(active ? localDb.getChallenges(active.id) : []);
         setCheckins(active ? localDb.getCheckins(active.id) : []);
+        setLastSyncedAt(new Date().toISOString());
         return;
       }
       const data = await fetchSupabase();
@@ -103,6 +113,7 @@ export function useCycleData(): CycleData {
       setChallenges(data.challenges);
       setCheckins(data.checkins);
       setCycles(data.cycles);
+      setLastSyncedAt(new Date().toISOString());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load data");
     } finally {
@@ -161,10 +172,10 @@ export function useCycleData(): CycleData {
       user_id: string;
       date: string;
       status: CheckinStatus;
+      proof_url?: string | null;
     }) => {
       if (!cycle) throw new Error("No active cycle");
 
-      // Optimistic update
       setCheckins((prev) => {
         const idx = prev.findIndex(
           (c) =>
@@ -177,6 +188,8 @@ export function useCycleData(): CycleData {
           next[idx] = {
             ...next[idx],
             status: input.status,
+            proof_url:
+              input.proof_url !== undefined ? input.proof_url : next[idx].proof_url,
             updated_at: new Date().toISOString(),
           };
           return next;
@@ -186,38 +199,95 @@ export function useCycleData(): CycleData {
           {
             id: `temp-${Date.now()}`,
             cycle_id: cycle.id,
-            ...input,
+            challenge_id: input.challenge_id,
+            user_id: input.user_id,
+            date: input.date,
+            status: input.status,
+            proof_url: input.proof_url ?? null,
             updated_at: new Date().toISOString(),
           },
         ];
       });
 
       if (mode === "local") {
-        localDb.upsertCheckin({ ...input, cycle_id: cycle.id });
+        localDb.upsertCheckin({
+          ...input,
+          cycle_id: cycle.id,
+          proof_url: input.proof_url,
+        });
+        setLastSyncedAt(new Date().toISOString());
         return;
       }
 
       const supabase = getSupabase();
       if (!supabase) throw new Error("Supabase not configured");
 
-      const { error: upsertError } = await supabase.from("daily_checkins").upsert(
-        {
-          cycle_id: cycle.id,
-          challenge_id: input.challenge_id,
-          user_id: input.user_id,
-          date: input.date,
-          status: input.status,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "challenge_id,user_id,date" }
-      );
+      const payload: Record<string, unknown> = {
+        cycle_id: cycle.id,
+        challenge_id: input.challenge_id,
+        user_id: input.user_id,
+        date: input.date,
+        status: input.status,
+        updated_at: new Date().toISOString(),
+      };
+      if (input.proof_url !== undefined) payload.proof_url = input.proof_url;
+
+      const { error: upsertError } = await supabase
+        .from("daily_checkins")
+        .upsert(payload, { onConflict: "challenge_id,user_id,date" });
 
       if (upsertError) {
         await refresh();
         throw upsertError;
       }
+      setLastSyncedAt(new Date().toISOString());
     },
     [cycle, mode, refresh]
+  );
+
+  const uploadProof = useCallback(
+    async (input: {
+      challenge_id: string;
+      user_id: string;
+      date: string;
+      file: File;
+    }) => {
+      if (!cycle) throw new Error("No active cycle");
+
+      if (mode === "local") {
+        const dataUrl = await fileToDataUrl(input.file);
+        await setCheckin({
+          challenge_id: input.challenge_id,
+          user_id: input.user_id,
+          date: input.date,
+          status: "completed",
+          proof_url: dataUrl,
+        });
+        return dataUrl;
+      }
+
+      const supabase = getSupabase();
+      if (!supabase) throw new Error("Supabase not configured");
+
+      const ext = (input.file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${cycle.id}/${input.user_id}/${input.date}-${input.challenge_id}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("proofs")
+        .upload(path, input.file, { upsert: true, contentType: input.file.type });
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from("proofs").getPublicUrl(path);
+      const url = data.publicUrl;
+      await setCheckin({
+        challenge_id: input.challenge_id,
+        user_id: input.user_id,
+        date: input.date,
+        status: "completed",
+        proof_url: url,
+      });
+      return url;
+    },
+    [cycle, mode, setCheckin]
   );
 
   const updateChallenge = useCallback(
@@ -339,10 +409,21 @@ export function useCycleData(): CycleData {
     loading,
     error,
     mode,
+    lastSyncedAt,
     refresh,
     setCheckin,
+    uploadProof,
     updateChallenge,
     addChallenge,
     startNewCycle,
   };
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error ?? new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
 }

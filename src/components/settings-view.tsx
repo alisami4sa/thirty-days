@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { AppliesTo, Challenge, ChallengeMetadata, DisplayName } from "@/lib/types";
+import { NOTE_MAX_LENGTH, USER_IDS } from "@/lib/types";
 import { todayISO } from "@/lib/dates";
 import type { CycleData } from "@/hooks/use-cycle-data";
 import { useIdentity } from "@/hooks/use-identity";
@@ -26,6 +27,12 @@ import {
   getNoteNotifyEnabled,
   setNoteNotifyEnabled,
 } from "@/hooks/use-note-alerts";
+import { useNotes } from "@/hooks/use-notes";
+import {
+  buildWeeklySummary,
+  checkinsToCsv,
+  downloadTextFile,
+} from "@/lib/insights";
 
 type DraftChallenge = {
   title: string;
@@ -78,11 +85,15 @@ export function SettingsView({
   data: CycleData;
   displayName: DisplayName;
 }) {
-  const { cycle, challenges, cycles, mode, updateChallenge, addChallenge, startNewCycle } = data;
+  const { cycle, challenges, checkins, cycles, mode, updateChallenge, addChallenge, startNewCycle } =
+    data;
   const clearIdentity = useIdentity((s) => s.clearIdentity);
+  const userId = useIdentity((s) => s.userId) ?? USER_IDS[displayName];
+  const { sendNote, otherName } = useNotes(displayName, userId);
   const [switchTo, setSwitchTo] = useState<DisplayName | null>(null);
   const [notifyOn, setNotifyOn] = useState(false);
   const [notifyMsg, setNotifyMsg] = useState<string | null>(null);
+  const [weeklyText, setWeeklyText] = useState<string | null>(null);
 
   useEffect(() => {
     setNotifyOn(getNoteNotifyEnabled() && typeof Notification !== "undefined" && Notification.permission === "granted");
@@ -312,6 +323,63 @@ export function SettingsView({
           />
         </div>
         {notifyMsg && <p className="text-sm text-[var(--muted)]">{notifyMsg}</p>}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--ink)]">
+          Backup & summary
+        </h2>
+        <p className="text-sm text-[var(--muted)]">
+          Export the active cycle, or build a 7-day summary you can send as a note.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            variant="secondary"
+            disabled={!cycle}
+            onClick={() => {
+              if (!cycle) return;
+              const csv = checkinsToCsv(cycle, challenges, checkins);
+              downloadTextFile(`${cycle.name.replace(/\s+/g, "-").toLowerCase()}-checkins.csv`, csv);
+              setMessage("CSV downloaded.");
+            }}
+          >
+            Export CSV
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={!cycle}
+            onClick={() => {
+              if (!cycle) return;
+              setWeeklyText(buildWeeklySummary(cycle, challenges, checkins));
+            }}
+          >
+            Weekly summary
+          </Button>
+        </div>
+        {weeklyText && (
+          <div className="space-y-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)]/70 p-4">
+            <pre className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--ink)]">
+              {weeklyText}
+            </pre>
+            <Button
+              size="sm"
+              disabled={!userId}
+              onClick={() => {
+                void (async () => {
+                  try {
+                    const body = weeklyText.slice(0, NOTE_MAX_LENGTH);
+                    await sendNote(body);
+                    setMessage(`Weekly summary sent to ${otherName}.`);
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "Could not send summary");
+                  }
+                })();
+              }}
+            >
+              Send as note to {otherName}
+            </Button>
+          </div>
+        )}
       </section>
 
       <section className="space-y-4">
