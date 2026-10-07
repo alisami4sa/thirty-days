@@ -12,6 +12,12 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async rewrites() {
+    return {
+      // Next.js does not directory-index public/, so /kit must map to the file.
+      beforeFiles: [{ source: "/kit", destination: "/kit/index.html" }],
+    };
+  },
 };
 
 export default withPWA(nextConfig);
