@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arabic Launch Kit — قالب Next.js + Supabase ثنائي اللغة | 7xgb</title>
+  <meta name="description" content="قالب Next.js 14 + Supabase جاهز: عربي/إنجليزي، RTL، تسجيل دخول، ولوحة تحكم. أطلق منتجك خلال عطلة نهاية أسبوع." />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #121a2b;
+      --text: #e8eefc;
+      --muted: #9aa8c7;
+      --accent: #3dd6c3;
+      --accent-2: #5b8cff;
+      --border: #243049;
+      --warn: #f0c14b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 80% -10%, #1a2744 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    a { color: var(--accent); }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    header { margin-bottom: 2rem; }
+    .badge {
+      display: inline-block;
+      background: rgba(61, 214, 195, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(61, 214, 195, 0.35);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.35; margin: 0 0 0.75rem; }
+    .promise { font-size: 1.1rem; color: var(--muted); margin: 0 0 1.5rem; }
+    .price-box {
+      background: linear-gradient(135deg, rgba(61,214,195,0.12), rgba(91,140,255,0.12));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .price { font-size: 1.75rem; font-weight: 700; }
+    .price small { font-size: 1rem; color: var(--muted); font-weight: 500; }
+    .cta {
+      display: inline-block;
+      background: var(--accent);
+      color: #04201c;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+    }
+    .cta:hover { filter: brightness(1.05); }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    h2 { margin: 0 0 0.75rem; font-size: 1.2rem; }
+    ul { margin: 0; padding-inline-start: 1.25rem; }
+    li { margin-bottom: 0.4rem; }
+    .grid { display: grid; gap: 1.25rem; }
+    @media (min-width: 700px) {
+      .grid.two { grid-template-columns: 1fr 1fr; }
+    }
+    .muted { color: var(--muted); }
+    .en {
+      direction: ltr;
+      text-align: left;
+      border-top: 1px dashed var(--border);
+      margin-top: 1rem;
+      padding-top: 1rem;
+    }
+    .en h2, .en h3 { direction: ltr; }
+    .pay-box {
+      background: #0e1626;
+      border: 1px dashed var(--warn);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 0.75rem;
+    }
+    .pay-box code {
+      background: #1a2438;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+    details {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+    }
+    details:last-child { border-bottom: none; }
+    summary { cursor: pointer; font-weight: 600; }
+    footer {
+      margin-top: 2rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    .lang-switch {
+      float: left;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">منتج رقمي · يُسلَّم عبر GitHub</div>
+      <h1>Arabic Launch Kit<br /><span class="muted" style="font-size:0.7em">قالب SaaS ثنائي اللغة لإطلاق سريع</span></h1>
+      <p class="promise">
+        وعد واحد: قالب Next.js 14 + Supabase جاهز بالعربية والإنجليزية (RTL)، مع تسجيل دخول ولوحة تحكم وأماكن دفع سعودية —
+        لتطلق منتجك خلال عطلة نهاية أسبوع بدل أشهر من الإعداد.
+      </p>
+      <div class="price-box">
+        <div>
+          <div class="price">69 دولار <small>/ 259 ريال</small></div>
+          <div class="muted">دفعة واحدة · ترخيص شخصي لمشروع واحد</div>
+        </div>
+        <a class="cta" href="#pay">اطلب الآن</a>
+      </div>
+    </header>
+
+    <div class="grid two">
+      <section>
+        <h2>ماذا يشمل؟</h2>
+        <ul>
+          <li>مستودع GitHub خاص: Next.js 14 (App Router) + TypeScript</li>
+          <li>Supabase Auth (بريد/كلمة مرور) + جلسة محمية</li>
+          <li>Prisma schema أساسي + أمثلة استعلامات</li>
+          <li>واجهة عربية RTL افتراضياً + تبديل إنجليزي (i18n بسيط)</li>
+          <li>صفحات: هبوط، تسجيل/دخول، لوحة تحكم فارغة جاهزة للتوسع</li>
+          <li>مكوّنات UI بسيطة (بدون مكتبة ثقيلة)</li>
+          <li>أماكن جاهزة لـ STC Pay وتحويل بنكي (بدون Stripe في v1)</li>
+          <li>README بالعربية والإنجليزية + قائمة نشر على Vercel</li>
+        </ul>
+      </section>
+      <section>
+        <h2>ماذا لا يشمل؟</h2>
+        <ul>
+          <li>تطوير ميزات مخصصة لمشروعك</li>
+          <li>حساب تاجر STC Pay أو فتح حساب بنكي</li>
+          <li>استضافة مدفوعة أو نطاق مخصص</li>
+          <li>تصميم هوية بصرية كامل أو لوقو</li>
+          <li>دعم فني مستمر بعد التسليم (يُباع منفصلاً لاحقاً)</li>
+          <li>أي ادعاء بملكية منتجات أخرى (مثل FitFork)</li>
+        </ul>
+      </section>
+    </div>
+
+    <section id="pay">
+      <h2>طريقة الدفع</h2>
+      <p class="muted">ادفع مرة واحدة عبر STC Pay أو تحويل بنكي سعودي، ثم أرسل إثبات الدفع على واتساب.</p>
+      <div class="pay-box">
+        <p><strong>STC Pay:</strong> <code>0581005909</code></p>
+        <p><strong>تحويل بنكي:</strong> اسم المستفيد <code>Ali Sami Alshehri</code> · IBAN <code>SA63 8000 0597 6080 1605 8827</code> · البنك <code>مصرف الراجحي</code></p>
+        <p><strong>المبلغ:</strong> 69 USD أو 259 SAR</p>
+        <p><strong>واتساب بعد الدفع:</strong> <code><a href="https://wa.me/966581005909">0581005909</a></code></p>
+      </div>
+      <h3 style="margin-top:1.25rem">ماذا يحدث بعد الدفع؟</h3>
+      <ol>
+        <li>ترسل لقطة/إيصال الدفع على واتساب مع بريد GitHub الخاص بك.</li>
+        <li>خلال 24 ساعة (غالباً أسرع): دعوة إلى المستودع الخاص + ملف ترخيص شخصي.</li>
+        <li>تتبع README: انسخ المشروع، اضبط مفاتيح Supabase، انشر على Vercel.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>لمن هذا؟</h2>
+      <ul>
+        <li>طلاب ومطوّرون يريدون إطلاق فكرة SaaS أو لوحة تحكم بسرعة</li>
+        <li>روّاد أعمال في السعودية/الخليج يحتاجون واجهة عربية من اليوم الأول</li>
+        <li>من يفضّل STC Pay / تحويل بنكي بدل الاعتماد على Stripe في البداية</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>أسئلة شائعة</h2>
+      <details>
+        <summary>هل أحتاج خبرة تقنية؟</summary>
+        <p class="muted">نعم أساسيات: Node.js، Git، وحساب Supabase مجاني. الـ README يشرح الخطوات سطراً بسطر.</p>
+      </details>
+      <details>
+        <summary>هل يمكن استخدامه لمشروع تجاري؟</summary>
+        <p class="muted">نعم لمشروع واحد خاص بك. إعادة بيع القالب نفسه أو مشاركته علناً غير مسموحة.</p>
+      </details>
+      <details>
+        <summary>هل يوجد استرداد؟</summary>
+        <p class="muted">بعد إرسال دعوة GitHub لا يوجد استرداد (منتج رقمي يُسلَّم فوراً). تأكد من مطابقة الوصف قبل الدفع.</p>
+      </details>
+      <details>
+        <summary>هل علي يبني لي التطبيق كاملاً؟</summary>
+        <p class="muted">لا — هذا قالب جاهز للانطلاق. التخصيص والخدمات المنفصلة تُناقش لاحقاً بسعر مستقل.</p>
+      </details>
+      <details>
+        <summary>لماذا ليس عبر Stripe؟</summary>
+        <p class="muted">النسخة الأولى تستهدف الدفع المحلي السعودي (STC Pay / تحويل) لتقليل الاحتكاك والرسوم لمن في المملكة.</p>
+      </details>
+    </section>
+
+    <!-- English mirror -->
+    <section class="en" lang="en" dir="ltr">
+      <h2>English summary</h2>
+      <p><strong>Arabic Launch Kit</strong> — A bilingual (AR/EN) Next.js 14 + Supabase starter with RTL, auth, dashboard shell, and Saudi payment placeholders (STC Pay / bank transfer). One-time <strong>$69 USD / 259 SAR</strong>. After payment, WhatsApp your receipt + GitHub email → private repo invite within 24h.</p>
+      <p class="muted"><strong>Includes:</strong> App Router TS repo, Supabase Auth, Prisma base, AR-default RTL + EN toggle, landing/login/dashboard pages, Vercel deploy checklist, AR+EN README.</p>
+      <p class="muted"><strong>Not included:</strong> custom feature work, merchant accounts, hosting, branding, ongoing support.</p>
+      <p><a class="cta" href="#pay">Pay &amp; get access</a></p>
+    </section>
+
+    <footer>
+      <p>© 2026 Ali Sami Alshehri (7xgb) · <a href="https://7xgb.online">7xgb.online</a> · منتج مستقل — لا علاقة له بـ FitFork أو أي منتج آخر</p>
+      <p class="muted">لا شهادات عملاء وهمية. السعر والمنتج كما هو موضّح أعلاه.</p>
+    </footer>
+  </div>
+</body>
+</html>
